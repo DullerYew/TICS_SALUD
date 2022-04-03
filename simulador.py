@@ -75,6 +75,9 @@ Parametros de entrada:
 Salida:
     -> Fecha (Array)
 """
+
+
+#Fecha en formato  AÑO-MES-DIA
 def generarFecha(sex):
     fechaGen = ''
     if sex == 'H':
@@ -138,9 +141,20 @@ def generarFecha(sex):
                 #return fechaGen
             
     tmp = datetime.datetime.strptime(fechaGen,'%d-%m-%Y').date()
+    nacDate = ''
+    if(int(tmp.month) < 10):
+        if(int(tmp.day) < 10):
+            nacDate = str(tmp.year) + '-0' + str(tmp.month) + '-0' + str(tmp.day)
+        else:
+            nacDate = str(tmp.year) + '-0' + str(tmp.month) + '-' + str(tmp.day)
+    elif(int(tmp.day) < 10):
+        nacDate = str(tmp.year) + '-' + str(tmp.month) + '-0' + str(tmp.day)
+    else:
+        nacDate = str(tmp.year) + '-' + str(tmp.month) + '-' + str(tmp.day)
+    
     anio = int(tmp.year)
     edad = int(year) - anio
-    return [fechaGen,edad]
+    return [fechaGen,edad,nacDate]
    
  #============== FUNCIÓN PARA GENERAR LA PRESION ARTERIAL ==============
 """
@@ -264,6 +278,11 @@ df['SEXO'] = None
 df['EDAD'] = None
 df['PESO'] = None
 df['ALTURA'] = None
+df['FECHA_NAC'] = None
+df['NOMBRE'] = None
+df['APELLIDO'] = None
+
+
 
 #Columnas de signos vitales
 df['PULSO'] = None
@@ -300,6 +319,9 @@ sexos = []
 edades = []
 alturas = []
 pesos = []
+fechas_nac = []
+nombres = []
+apellidos = []
 
 presiones_PAS = []
 presiones_PAD = []
@@ -321,9 +343,14 @@ for h in range(0,nH):
     ran_apellidoH_pat = random.randint(0,cantApellidos-1)
     ran_apellidoH_mat = random.randint(0,cantApellidos-1)
     
+    
     date = generarFecha('H')
     varPA = generarPesoAltura('H',date[1])
+    fechas_nac.append(date[2])
     rfc = CalculeRFC(nombres=nombresHombreFrec_data['NOMBRE'][ran_nombreH_1] + ' ' + nombresHombreFrec_data['NOMBRE'][ran_nombreH_2],paterno=apellidosFrec_data['apellido'][ran_apellidoH_pat],materno=apellidosFrec_data['apellido'][ran_apellidoH_mat],fecha=date[0]).data
+    
+    nombres.append(nombresHombreFrec_data['NOMBRE'][ran_nombreH_1])
+    apellidos.append(apellidosFrec_data['apellido'][ran_apellidoH_pat])
     
     rfcs.append(rfc)
     alturas.append(varPA[0])
@@ -356,8 +383,14 @@ for m in range(0,nM):
     ran_nombreM_2 = random.randint(0,cantNombresMujeres-1)
     ran_apellidoM_pat = random.randint(0,cantApellidos-1)
     ran_apellidoM_mat = random.randint(0,cantApellidos-1)
+
+    
     date = generarFecha('M')
     varPA = generarPesoAltura('M',date[1])
+    fechas_nac.append(date[2])
+    
+    nombres.append(nombresMujerFrec_data['NOMBRE'][ran_nombreM_1])
+    apellidos.append(apellidosFrec_data['apellido'][ran_apellidoM_pat])
     
     rfc = CalculeRFC(nombres=nombresMujerFrec_data['NOMBRE'][ran_nombreM_1] + ' ' + nombresMujerFrec_data['NOMBRE'][ran_nombreM_2],paterno=apellidosFrec_data['apellido'][ran_apellidoM_pat],materno=apellidosFrec_data['apellido'][ran_apellidoM_mat],fecha=date[0]).data
     rfcs.append(rfc)
@@ -389,6 +422,9 @@ df['SEXO'] = sexos
 df['EDAD'] = edades
 df['ALTURA'] = alturas
 df['PESO'] =pesos
+df['FECHA_NAC']=fechas_nac
+df['NOMBRE'] = nombres
+df['APELLIDO'] = apellidos
 
 df['PRESION_ART_PAS'] = presiones_PAS
 df['PRESION_ART_PAD'] = presiones_PAD
@@ -410,10 +446,10 @@ df['COLESTEROL_TOT'] = colest
 df = df.sample(frac=1).reset_index(drop=True)
 #print(df)
 
-print("{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format("RFC","SEXO","EDAD","ALTURA","PESO","PRESION_ART_PAS","PRESION_ART_PAD","PULSO","TEMP_CORPORAL","LEUCOCITOS","ERITROCITOS","PLAQUETAS","GLUCOSA","UREA","CREATININA","ACIDO_URICO","COLESTEROL_TOT"))
+print("{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format("RFC","SEXO","EDAD","FECHA_NAC","NOMBRE","APELLIDO","ALTURA","PESO","PRESION_ART_PAS","PRESION_ART_PAD","PULSO","TEMP_CORPORAL","LEUCOCITOS","ERITROCITOS","PLAQUETAS","GLUCOSA","UREA","CREATININA","ACIDO_URICO","COLESTEROL_TOT"))
 
 for i in range(0,num):
-    print("{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(df['RFC'][i],df['SEXO'][i],df['EDAD'][i],df['ALTURA'][i],df['PESO'][i],df['PRESION_ART_PAS'][i],df['PRESION_ART_PAD'][i],df['PULSO'][i],df['TEMP_CORPORAL'][i],df['LEUCOCITOS'][i],df['ERITROCITOS'][i],df['PLAQUETAS'][i],df['GLUCOSA'][i],df['UREA'][i],df['CREATININA'][i],df['ACIDO_URICO'][i],df['COLESTEROL_TOT'][i]))
+    print("{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(df['RFC'][i],df['SEXO'][i],df['EDAD'][i],df['FECHA_NAC'][i],df['NOMBRE'][i],df['APELLIDO'][i],df['ALTURA'][i],df['PESO'][i],df['PRESION_ART_PAS'][i],df['PRESION_ART_PAD'][i],df['PULSO'][i],df['TEMP_CORPORAL'][i],df['LEUCOCITOS'][i],df['ERITROCITOS'][i],df['PLAQUETAS'][i],df['GLUCOSA'][i],df['UREA'][i],df['CREATININA'][i],df['ACIDO_URICO'][i],df['COLESTEROL_TOT'][i]))
 
 
 if args.csv != None:
